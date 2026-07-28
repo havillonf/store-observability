@@ -25,3 +25,16 @@ services:
       - "3000:3000"
     depends_on:
       - elasticsearch
+
+  loja-service:
+    build:
+      context: .
+      dockerfile: loja-service/Dockerfile
+    container_name: poc-loja-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+    depends_on:
+      - rabbitmq
