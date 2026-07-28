@@ -36,3 +36,19 @@ services:
       - SPRING_RABBITMQ_PORT=5672
     depends_on:
       - rabbitmq
+
+  collector-service:
+    build:
+      context: .
+      dockerfile: collector-service/Dockerfile
+    container_name: poc-collector-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+    depends_on:
+      - rabbitmq
+      - elasticsearch
