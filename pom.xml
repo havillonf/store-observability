@@ -8,12 +8,11 @@
 		<version>4.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>demo</artifactId>
+	<groupId>com.store.observability</groupId>
+	<artifactId>store-observability</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
-	<url/>
+	<name>store-observability</name>
+	<description>Store Observability</description>
 	<licenses>
 		<license/>
 	</licenses>
