@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: poc-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: poc-rabbitmq
+    ports:
+      - "5672:5672"   # Broker
+      - "15672:15672" # Painel de controle
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: poc-grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - elasticsearch
