@@ -232,7 +232,7 @@
     <div class="header">
         <h1>Loja - Produtor de Métricas</h1>
         <p>Simulador de Ações do Usuário para Telemetria em Tempo Real</p>
-        <span class="badge">RabbitMQ Fila: metrics.queue</span>
+        <span class="badge">RabbitMQ Fila: metrics.queue | Database: PostgreSQL (storedb)</span>
     </div>
 
     <div class="main-container">
@@ -265,29 +265,33 @@
             
             <div class="stats-grid">
                 <div class="stat-box">
-                    <div class="stat-number" id="count-view">0</div>
+                    <div class="stat-number" id="count-view" th:text="${views != null ? views : 0}">0</div>
                     <div class="stat-label">Views</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-number" id="count-cart">0</div>
+                    <div class="stat-number" id="count-cart" th:text="${carts != null ? carts : 0}">0</div>
                     <div class="stat-label">Carrinhos</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-number" id="count-checkout">0</div>
+                    <div class="stat-number" id="count-checkout" th:text="${checkouts != null ? checkouts : 0}">0</div>
                     <div class="stat-label">Checkouts</div>
                 </div>
             </div>
 
             <div class="logs-container" id="logs">
                 <div class="log-item" style="border-left-color: var(--text-secondary);">
-                    Aguardando interações... Clique nos botões para publicar métricas.
+                    Aguardando interações... Dados sincronizados com o PostgreSQL.
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        const counts = { view_product: 0, add_to_cart: 0, checkout: 0 };
+    <script th:inline="javascript">
+        const counts = {
+            view_product: /*[[${views != null ? views : 0}]]*/ 0,
+            add_to_cart: /*[[${carts != null ? carts : 0}]]*/ 0,
+            checkout: /*[[${checkouts != null ? checkouts : 0}]]*/ 0
+        };
 
         async function sendAction(actionName, valueAmount) {
             try {
@@ -298,7 +302,11 @@
                 });
 
                 if (response.ok) {
-                    counts[actionName]++;
+                    const data = await response.json();
+                    if (data.views !== undefined) counts.view_product = data.views;
+                    if (data.carts !== undefined) counts.add_to_cart = data.carts;
+                    if (data.checkouts !== undefined) counts.checkout = data.checkouts;
+                    
                     updateStats();
                     addLog(actionName, valueAmount);
                 } else {
@@ -323,7 +331,7 @@
             logItem.className = `log-item ${action}`;
             logItem.innerHTML = `
                 <div><strong>Event:</strong> <code>${action}</code> (value: ${value})</div>
-                <div class="log-time">${now} • Enviado para RabbitMQ</div>
+                <div class="log-time">${now} • Salvo no DB & Enviado ao RabbitMQ</div>
             `;
 
             logsContainer.prepend(logItem);
