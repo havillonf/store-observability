@@ -29,6 +29,28 @@ public class MetricsBatchCollectorService {
     @Value("${elasticsearch.index:metrics-poc}")
     private String indexName;
 
+    @jakarta.annotation.PostConstruct
+    public void initIndex() {
+        try {
+            boolean exists = esClient.indices().exists(e -> e.index(indexName)).value();
+            if (!exists) {
+                esClient.indices().create(c -> c
+                        .index(indexName)
+                        .mappings(m -> m
+                                .properties("timestamp", p -> p.date(d -> d.format("epoch_millis||strict_date_optional_time")))
+                                .properties("service", p -> p.keyword(k -> k))
+                                .properties("action", p -> p.keyword(k -> k))
+                                .properties("value", p -> p.double_(d -> d))
+                        )
+                );
+                log.info("Índice {} criado com sucesso no Elasticsearch com mapeamento nativo de data!", indexName);
+            }
+        } catch (Exception e) {
+            log.warn("Não foi possível verificar/criar o índice {} na inicialização: {}", indexName, e.getMessage());
+        }
+    }
+
+
     public void addMetric(MetricMessage metric) {
         buffer.add(metric);
         log.info("Métrica adicionada ao buffer. Tamanho atual do buffer: {}", buffer.size());
