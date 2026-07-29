@@ -22,39 +22,39 @@ Painel em tempo real consumindo os dados agregados do Elasticsearch, exibindo to
 
 ```mermaid
 flowchart TD
-    subgraph UI ["Interface do Usuário (Navegador)"]
+    subgraph UI ["Interface do Usuário"]
         User["🌐 Usuário / Simulador Web"]
     end
 
     subgraph App ["Aplicação Transacional"]
-        Loja["🛒 loja-service (Porta 8080)\nSpring Boot"]
+        Loja["🛒 loja-service (Porta 8080)<br/>Spring Boot"]
     end
 
     subgraph Persistence ["Persistência Relacional"]
-        Postgres[("🐘 PostgreSQL (Porta 5432)\nDatabase: storedb\nVolume: postgres_data")]
+        Postgres[("🐘 PostgreSQL (Porta 5432)<br/>Database: storedb<br/>Volume: postgres_data")]
     end
 
     subgraph Messaging ["Mensageria Assíncrona"]
-        RabbitMQ["🐰 RabbitMQ (Portas 5672 / 15672)\nFila: metrics.queue"]
+        RabbitMQ["🐰 RabbitMQ (Portas 5672 / 15672)<br/>Fila: metrics.queue"]
     end
 
-    subgraph Telemetry ["Pipeline de Telemetria & Batching"]
-        Collector["⚙️ collector-service (Porta 8081)\nConsumer + Concurrent Buffer"]
+    subgraph Telemetry ["Pipeline de Telemetria"]
+        Collector["⚙️ collector-service (Porta 8081)<br/>Consumer + Concurrent Buffer"]
     end
 
     subgraph StorageAnalytics ["Busca & Analytics"]
-        ES[("🔍 Elasticsearch 8.12.0 (Porta 9200)\nIndex: metrics-poc\nVolume: es_data")]
+        ES[("🔍 Elasticsearch 8.12.0 (Porta 9200)<br/>Index: metrics-poc<br/>Volume: es_data")]
     end
 
     subgraph Visualization ["Visualização"]
-        Grafana["📊 Grafana (Porta 3000)\nStore Dashboard"]
+        Grafana["📊 Grafana (Porta 3000)<br/>Store Dashboard"]
     end
 
-    User -->|Simula Ações HTTP POST / GET| Loja
+    User -->|Simula Ações HTTP| Loja
     Loja -->|1. Persiste Interação JPA| Postgres
     Loja -->|2. Emite Métricas| RabbitMQ
     RabbitMQ -->|Consome Mensagens| Collector
-    Collector -->|3. Bulk Ingest (Batching)| ES
+    Collector -->|3. Bulk Ingest| ES
     Grafana -->|Consulta Séries Temporais| ES
 ```
 
